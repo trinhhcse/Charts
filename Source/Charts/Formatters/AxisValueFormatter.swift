@@ -12,8 +12,8 @@
 import Foundation
 
 /// An interface for providing custom axis Strings.
-@objc(ChartAxisValueFormatter)
-public protocol AxisValueFormatter: class
+//@objc(ChartAxisValueFormatter)
+@objc public protocol AxisValueFormatter: class
 {
     
     /// Called when a value from an axis is formatted before being drawn.
@@ -26,5 +26,17 @@ public protocol AxisValueFormatter: class
     /// - Returns: The customized label that is drawn on the x-axis.
     func stringForValue(_ value: Double,
                         axis: AxisBase?) -> String
-    
+
+    @objc optional func colorForValue(_ value: Double,
+                        axis: AxisBase?) -> UIColor?
+
 }
+
+//extension AxisValueFormatter {
+//    func colorForValue(_ value: Double,
+//                       axis: AxisBase?) -> UIColor?
+//    {
+//        return nil
+//    }
+//
+//}

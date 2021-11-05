@@ -12,14 +12,17 @@ struct ChartVisual {
     var bottomTitleSpace: CGFloat = 10
 
     static var defaultVisual: ChartVisual {
-        return ChartVisual(space: 24, width: 32)
+        return ChartVisual(space: 50, width: 8)
     }
 }
 
 struct ChartItemData {
     var title: String
     var valueTitle: String
-    
+    var value: Double
+    var isHighlight: Bool = false
+
+    var barVisual: BarVisual
 }
 
 struct BarVisual {
@@ -31,7 +34,7 @@ struct BarVisual {
     var isHighlight: Bool = false
     
     static func defaultVisual() -> BarVisual {
-        return BarVisual(radius: 4.0, normalColor: UIColor.gray, highlightColor: UIColor.cyan, normalTextColor: UIColor.red, highlightTextColor: UIColor.red)
+        return BarVisual(radius: 4.0, normalColor: #colorLiteral(red: 0.9333333333, green: 0.9333333333, blue: 0.9333333333, alpha: 1), highlightColor: #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), normalTextColor: #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1), highlightTextColor: #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1))
     }
 }
 
@@ -39,7 +42,8 @@ class VeritalBarChartView: UIView {
     // MARK: Properties
     var chartView: BarChartView!
     var visual: ChartVisual = ChartVisual.defaultVisual
-    var numOfBar: Int = 4
+    private var numOfBar: Int = 4
+    var chartItems: [ChartItemData] = []
     
     // MARK: LifeCycle
     required init?(coder: NSCoder) {
@@ -60,6 +64,32 @@ class VeritalBarChartView: UIView {
         setup(barLineChartView: chartView)
         
         setDataCount(numOfBar, range: 50, highlight: 2)
+        
+        var limitLine = ChartLimitLine()
+        limitLine = ChartLimitLine(limit: 45.5, label: "15")
+        limitLine.lineColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
+        limitLine.valueTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
+        limitLine.lineDashLengths = [3.0]
+        chartView.leftAxis.addLimitLine(limitLine)
+
+    }
+    
+    func showChartItems(items: [ChartItemData]) {
+        let yVals: [BarChartDataEntry] = items.map { item in
+            let data = BarChartDataEntry(x: item.value, y: item.value, data: item.barVisual)
+            return data
+        }
+        
+        var set1: HyperChartBaseDataSet = HyperChartBaseDataSet(entries: yVals, label: "label ")
+        set1.barCornerRadius = 4
+        set1.colors = [.black, .white] // array always have more than 1 item so "color(atIndex index: Int)" to be called
+        set1.drawValuesEnabled = true
+//        set1.valueFormatter = VerticalBarValueFormatter(titles: bottomLabels)
+        let data = BarChartData(dataSet: set1)
+        data.setValueFont(UIFont(name: "HelveticaNeue-Light", size: 10)!)
+        data.setValueTextColor( .black)
+        data.barWidth = calculateBarWidth()
+
     }
     
     // MARK: Functions
@@ -83,24 +113,31 @@ class VeritalBarChartView: UIView {
         // ChartYAxis *leftAxis = chartView.leftAxis;
         chartView.xAxis.wordWrapEnabled = true
         chartView.xAxis.drawGridLinesEnabled = false
-        chartView.leftAxis.enabled = false
         chartView.rightAxis.enabled = false
+        chartView.leftAxis.enabled = true
         chartView.leftAxis.drawLabelsEnabled = false // Hide label
+        chartView.leftAxis.drawGridLinesEnabled = false
         chartView.legend.enabled = false
 
         let xAxis = chartView.xAxis
         xAxis.labelPosition = .bottom
-        xAxis.labelTextColor = .purple
+        xAxis.labelTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
         
         var titles: [String] = []
         for _ in 0..<numOfBar {
             titles.append("날짜")
         }
+        
+        var colors: [UIColor] = []
+        for _ in 0..<numOfBar {
+            colors.append(UIColor.green)
+        }
+
 
         chartView.xAxis.yOffset = visual.bottomTitleSpace // spacing bottom  bar title - bar rect
         
         // set bottom item titles
-        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: titles)
+        chartView.xAxis.valueFormatter = VerticalBarValueFormatter(titles: titles, colors: colors)
         chartView.xAxis.setLabelCount(numOfBar, force: false)
 //        chartView.highlightValues([Highlight(x: 2, dataSetIndex: 1, stackIndex: 0)])
         
@@ -125,7 +162,7 @@ class VeritalBarChartView: UIView {
         set1.barCornerRadius = 4
         set1.colors = [.black, .white] // array always have more than 1 item so "color(atIndex index: Int)" to be called
         set1.drawValuesEnabled = true
-        set1.valueFormatter = VerticalBarValueFormatter(titles: bottomLabels)
+//        set1.valueFormatter = VerticalBarValueFormatter(titles: bottomLabels)
         let data = BarChartData(dataSet: set1)
         data.setValueFont(UIFont(name: "HelveticaNeue-Light", size: 10)!)
         data.setValueTextColor( .black)
@@ -151,6 +188,7 @@ class HyperChartBaseDataSet: BarChartDataSet {
         fatalError("init() has not been implemented")
     }
     
+    // body Bar color
     override func color(atIndex index: Int) -> NSUIColor {
         let entry = entries[index]
         if let visual = entry.data as? BarVisual {
@@ -159,6 +197,7 @@ class HyperChartBaseDataSet: BarChartDataSet {
         return UIColor.red
     }
     
+    // value title color on top of each bar
     override func valueTextColorAt(_ index: Int) -> NSUIColor {
         let entry = entries[index]
         if let visual = entry.data as? BarVisual {
@@ -171,9 +210,11 @@ class HyperChartBaseDataSet: BarChartDataSet {
 
 public class VerticalBarValueFormatter: NSObject, ValueFormatter, AxisValueFormatter {
     var titles: [String] = []
+    var colors: [UIColor] = []
     
-    init(titles: [String]) {
+    init(titles: [String], colors: [UIColor] = []) {
         self.titles = titles
+        self.colors = colors
     }
     
     fileprivate func format(value: Double) -> String {
@@ -197,5 +238,13 @@ public class VerticalBarValueFormatter: NSObject, ValueFormatter, AxisValueForma
             return titles[dataSetIndex]
         }
         return ""
+    }
+    
+    public func colorForValue(_ value: Double, axis: AxisBase?) -> UIColor? {
+        let index = Int(value)
+        if colors.count > index {
+            return colors[index]
+        }
+        return nil
     }
 }
