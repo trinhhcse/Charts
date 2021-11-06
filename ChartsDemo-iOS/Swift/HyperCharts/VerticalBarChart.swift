@@ -9,7 +9,7 @@ import Charts
 struct ChartVisual {
     var space: Int
     var width: Int
-    var bottomTitleSpace: CGFloat = 10
+    var bottomTitleSpace: CGFloat = 0
 
     static var defaultVisual: ChartVisual {
         return ChartVisual(space: 24, width: 32)
@@ -44,6 +44,7 @@ class VeritalBarChartView: UIView {
     var visual: ChartVisual = ChartVisual.defaultVisual
     private var numOfBar: Int = 3
     var chartItems: [BarChartItemData] = []
+    var leftAxisUnit: String = ""
     
     // MARK: LifeCycle
     required init?(coder: NSCoder) {
@@ -65,14 +66,6 @@ class VeritalBarChartView: UIView {
         
 //        setDataCount(numOfBar, range: 50, highlight: 2)
         
-        var limitLine = ChartLimitLine()
-        limitLine = ChartLimitLine(limit: 40.5, label: "Hello")
-        limitLine.lineColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
-        limitLine.valueTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
-        limitLine.lineWidth = 1
-        limitLine.labelPosition = .leftTop
-//        limitLine.lineDashLengths = [3.0]
-        chartView.rightAxis.addLimitLine(limitLine)
 
     }
     
@@ -85,7 +78,20 @@ class VeritalBarChartView: UIView {
     
     func setChartVisual(_ visual: ChartVisual) {
         self.visual = visual
+        chartView.xAxis.yOffset = visual.bottomTitleSpace // spacing bottom  bar title - bar rect
         updateChartViewSize()
+    }
+    
+    func setLimits(limitLines: [ChartLimitLine]) {
+        var limitLine = ChartLimitLine()
+        limitLine = ChartLimitLine(limit: 40.5, label: "Hello")
+        limitLine.lineColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
+        limitLine.valueTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
+        limitLine.lineWidth = 1
+        limitLine.labelPosition = .leftTop
+//        limitLine.lineDashLengths = [3.0]
+        chartView.rightAxis.addLimitLine(limitLine)
+
     }
     
     func setChartItems(items: [BarChartItemData]) {
@@ -149,7 +155,7 @@ class VeritalBarChartView: UIView {
         chartView.leftAxis.drawLabelsEnabled = true // Hide label
         chartView.leftAxis.drawGridLinesEnabled = true
         chartView.leftAxis.gridColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
-        chartView.leftAxis.valueFormatter = VerticalBarLeftAxisValueFormatter()
+        chartView.leftAxis.valueFormatter = VerticalBarLeftAxisValueFormatter(unit: leftAxisUnit)
             
         chartView.legend.enabled = false
 
@@ -272,8 +278,12 @@ public class VerticalBarValueFormatter: NSObject, ValueFormatter, AxisValueForma
 
 
 public class VerticalBarLeftAxisValueFormatter: NSObject, AxisValueFormatter {
+    let unit: String
+    init(unit: String) {
+        self.unit = unit
+    }
     public func stringForValue(_ value: Double, axis: AxisBase?) -> String {
-        return String(format: "%g Hi", value)
+        return unit.isEmpty ? String(format: "%g", value) : String(format: "%g %@", value, unit)
     }
     
 }
