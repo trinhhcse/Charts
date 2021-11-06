@@ -82,9 +82,9 @@ class VeritalBarChartView: UIView {
         updateChartViewSize()
     }
     
-    func setLimits(limitLines: [ChartLimitLine]) {
+    func addLimitLine(value: Double, title: String) {
         var limitLine = ChartLimitLine()
-        limitLine = ChartLimitLine(limit: 40.5, label: "Hello")
+        limitLine = ChartLimitLine(limit: value, label: title)
         limitLine.lineColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
         limitLine.valueTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
         limitLine.lineWidth = 1
@@ -97,11 +97,10 @@ class VeritalBarChartView: UIView {
     func setChartItems(items: [BarChartItemData]) {
         numOfBar = items.count
         updateChartViewSize()
-        let min = items.map { $0.value }.min() ?? 1
         var yVals: [BarChartDataEntry] = []
         var index:Double = 0
         items.forEach { item in
-            let data = BarChartDataEntry(x: index, y: item.value, data: item)
+            let data = BarChartDataEntry(x: index, y: item.value , data: item)
             yVals.append(data)
             index += 1
         }
@@ -109,11 +108,15 @@ class VeritalBarChartView: UIView {
         chartView.xAxis.valueFormatter = VerticalBarValueFormatter(barItems: items)
         chartView.xAxis.setLabelCount(numOfBar, force: false)
 
-        var set1: HyperChartBaseDataSet = HyperChartBaseDataSet(entries: yVals, label: "label ")
-        set1.barCornerRadius = 4
-        set1.colors = [.black, .white] // array always have more than 1 item so "color(atIndex index: Int)" to be called
+        var set1: HyperChartBaseDataSet = HyperChartBaseDataSet(entries: yVals, label: "Hi Legend ")
+        set1.colors = [.black, .green, .gray] // array always have more than 1 item so "color(atIndex index: Int)" to be called
         set1.drawValuesEnabled = true
+        set1.barCornerRadius = 4
+
         set1.valueFormatter = VerticalBarValueFormatter(barItems: items)
+        set1.stackLabels = ["Births", "Divorces", "Marriages"]
+
+                
         let data = BarChartData(dataSet: set1)
         data.setValueFont(UIFont(name: "HelveticaNeue-Light", size: 10)!)
         data.setValueTextColor( .black)
@@ -122,15 +125,16 @@ class VeritalBarChartView: UIView {
         chartView.data = data
     }
     
+    func setStackCharItems() {
+        
+    }
+    
     // MARK: Functions
     /*
      Because BarChartView will calculate the with of bar by percentage,
      It will calculate by with and number of item
      But our design persist  with and space so the with of BarChartView will change by number of view and visual
      **/
-    func setNumOfBar(num: Int) {
-        
-    }
     
     func setup(barLineChartView chartView: BarLineChartViewBase) {
         chartView.chartDescription.enabled = false
@@ -144,6 +148,7 @@ class VeritalBarChartView: UIView {
         chartView.xAxis.wordWrapEnabled = true
         chartView.xAxis.drawGridLinesEnabled = false
         chartView.xAxis.axisLineColor = .clear
+        chartView.xAxis.granularity = 1
         
         chartView.rightAxis.enabled = true
         chartView.rightAxis.axisLineColor = .clear
@@ -162,43 +167,12 @@ class VeritalBarChartView: UIView {
         let xAxis = chartView.xAxis
         xAxis.labelPosition = .bottom
         xAxis.labelTextColor = #colorLiteral(red: 0.6666666667, green: 0.6666666667, blue: 0.6666666667, alpha: 1)
-
-        chartView.xAxis.yOffset = visual.bottomTitleSpace // spacing bottom  bar title - bar rect
         
         // set bottom item titles
 //        chartView.highlightValues([Highlight(x: 2, dataSetIndex: 1, stackIndex: 0)])
         
     }
-    
-    func setDataCount(_ count: Int, range: UInt32, highlight: Int) {
-        let yVals = (0..<count).map { (i) -> BarChartDataEntry in
-            let val = Double(46.0)
-            var barVisual = BarVisual.defaultVisual()
-            barVisual.isHighlight = i == 1
-            let data = BarChartDataEntry(x: Double(i), y: val, data: barVisual)
-            return data
-        }
         
-        var bottomLabels: [String] = []
-        for _ in 0..<numOfBar {
-            bottomLabels.append("같은데")
-        }
-
-        
-        var set1: HyperChartBaseDataSet = HyperChartBaseDataSet(entries: yVals, label: "label ")
-        set1.barCornerRadius = 4
-        set1.colors = [.black, .white] // array always have more than 1 item so "color(atIndex index: Int)" to be called
-        set1.drawValuesEnabled = true
-//        set1.valueFormatter = VerticalBarValueFormatter(titles: bottomLabels)
-        let data = BarChartData(dataSet: set1)
-        data.setValueFont(UIFont(name: "HelveticaNeue-Light", size: 10)!)
-        data.setValueTextColor( .black)
-        data.barWidth = calculateBarWidth()
-        
-        chartView.data = data
-        
-    }
-    
     func calculateBarWidth() -> Double {
         let width = CGFloat(visual.width * numOfBar + visual.space * (numOfBar - 1))
         return Double(visual.width * numOfBar) / Double(width)

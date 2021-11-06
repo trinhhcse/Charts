@@ -131,6 +131,8 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, BarChartData
         copy.barBorderWidth = barBorderWidth
         copy.barBorderColor = barBorderColor
         copy.highlightAlpha = highlightAlpha
+        copy.barCornerRadius = barCornerRadius
+        copy.roundingCorners = roundingCorners
         return copy
     }
 }
