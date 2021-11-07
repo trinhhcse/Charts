@@ -102,6 +102,8 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, BarChartData
     /// array of labels used to describe the different values of the stacked bars
     open var stackLabels: [String] = []
     
+    open var barCornerRadius: CGFloat = 0
+    
     // MARK: - Styling functions and accessors
     
     /// the color used for drawing the bar-shadows. The bar shadows is a surface behind the bar that indicates the maximum value
@@ -129,6 +131,7 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, BarChartData
         copy.barBorderWidth = barBorderWidth
         copy.barBorderColor = barBorderColor
         copy.highlightAlpha = highlightAlpha
+        copy.barCornerRadius = barCornerRadius
         return copy
     }
 }

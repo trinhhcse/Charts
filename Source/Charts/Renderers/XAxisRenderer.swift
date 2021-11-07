@@ -252,7 +252,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
         let paraStyle = ParagraphStyle.default.mutableCopy() as! MutableParagraphStyle
         paraStyle.alignment = .center
         
-        let labelAttrs: [NSAttributedString.Key : Any] = [.font: axis.labelFont,
+        var labelAttrs: [NSAttributedString.Key : Any] = [.font: axis.labelFont,
                                                          .foregroundColor: axis.labelTextColor,
                                                          .paragraphStyle: paraStyle]
 
@@ -300,6 +300,10 @@ open class XAxisRenderer: NSObject, AxisRenderer
                     position.x += width / 2.0
                 }
             }
+            
+            let color = axis.valueFormatter?.colorForValue?(axis.entries[i], axis: axis) ?? axis.labelTextColor
+
+            labelAttrs[.foregroundColor] = color
             
             drawLabel(context: context,
                       formattedLabel: label,

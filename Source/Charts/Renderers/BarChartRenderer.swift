@@ -379,7 +379,53 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
             
-            context.fill(barRect)
+            if dataSet.barCornerRadius > 0 {
+                if isStacked {
+                    var corners: UIRectCorner = []
+                    if buffer.count == 1 {
+                        corners = .allCorners
+                    } else {
+                        let indexInStack = j % stackSize
+
+                        if indexInStack == 0  {
+                            corners = [.bottomLeft, .bottomRight]
+
+                        }
+                        if indexInStack == stackSize - 1 {
+                            corners = [.topLeft, .topRight]
+
+                        }
+
+                    }
+                    if corners.isEmpty {
+                        context.fill(barRect)
+    //                    let bezierPath = UIBezierPath(roundedRect: barRect, cornerRadius: dataSet.barCornerRadius)
+    //                    context.addPath(bezierPath.cgPath)
+    //                    context.drawPath(using: .fill)
+
+                    } else {
+                        let bezierPath = UIBezierPath(roundedRect:barRect,
+                                                      byRoundingCorners: corners,
+                                                        cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                        context.addPath(bezierPath.cgPath)
+                        context.drawPath(using: .fill)
+                    }
+
+                } else {
+                    let bezierPath = UIBezierPath(roundedRect:barRect,
+                                                  byRoundingCorners: .allCorners,
+                                                    cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                }
+            } else {
+                context.fill(barRect)
+            }
+            
+//            context.fill(barRect)
+
             
             if drawBorder
             {
@@ -389,20 +435,84 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
             }
 
             // Create and append the corresponding accessibility element to accessibilityOrderedElements
-            if let chart = dataProvider as? BarChartView
-            {
-                let element = createAccessibleElement(
-                    withIndex: j,
-                    container: chart,
-                    dataSet: dataSet,
-                    dataSetIndex: index,
-                    stackSize: stackSize
-                ) { (element) in
-                    element.accessibilityFrame = barRect
-                }
+//            if let chart = dataProvider as? BarChartView
+//            {
+//                let element = createAccessibleElement(
+//                    withIndex: j,
+//                    container: chart,
+//                    dataSet: dataSet,
+//                    dataSetIndex: index,
+//                    stackSize: stackSize
+//                ) { (element) in
+//                    element.accessibilityFrame = barRect
+//                }
+//
+//                accessibilityOrderedElements[j/stackSize].append(element)
+//            }
+        }
+        
+        if dataSet.barCornerRadius > 0 {
 
-                accessibilityOrderedElements[j/stackSize].append(element)
-            }
+//            for j in buffer.indices {
+//                let barRect = buffer[j]
+//
+//                guard viewPortHandler.isInBoundsLeft(barRect.origin.x + barRect.size.width) else { continue }
+//                guard viewPortHandler.isInBoundsRight(barRect.origin.x) else { break }
+//
+//                    let indexInStack = j % stackSize
+//                    if indexInStack == stackSize - 1  {
+//                        var rects: [CGRect] = []
+//
+//                        for i in 0..<stackSize {
+//                            let ide = max(0, j - stackSize)
+//                            rects.append(buffer[ ide + i])
+//                        }
+//
+//                        var startRect: CGRect = rects[0]
+//                        let x = rects.map { $0.origin.x }.min() ?? 0
+//                        let y = rects.map { $0.origin.y }.min() ?? 0
+//                        let xz = rects.map { $0.maxX }.max() ?? 0
+//                        let yz = rects.map { $0.maxY }.max() ?? 0
+//                        let cornerRect = CGRect(x: x, y: y, width: startRect.width, height: yz - y)
+////                                    rects.forEach { rect in
+////                                        startRect.origin.x = min(startRect.origin.x, rect.origin.x)
+////                                        startRect.origin.y = min(startRect.origin.y, rect.origin.y)
+////                                        startRect.size.width = max(startRect.maxX, rect.maxX)
+////
+////                                        startRect.size.height = max(startRect.maxY, rect.maxY) - startRect.origin.y
+////                        //                startRect = startRect.union($0)
+////                                    }
+//                        let bezierPath = UIBezierPath(roundedRect:cornerRect,
+//                                                      byRoundingCorners: .allCorners,
+//                                                        cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+//
+//                        let colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.yellow, UIColor.orange, UIColor.black]
+//                        context.setFillColor(colors[j % colors.count].cgColor)
+//                        context.addPath(bezierPath.cgPath)
+//                        context.drawPath(using: .fill)
+//
+//                    }
+//            }
+
+            
+            
+            
+//            rects.forEach { rect in
+//
+//                startRect.origin.x = min(startRect.origin.x, rect.origin.x)
+//                startRect.origin.y = min(startRect.origin.y, rect.origin.y)
+//                startRect.size.width = max(startRect.size.width, rect.size.width)
+//                startRect.size.height = max(startRect.size.height, rect.size.height)
+////                startRect = startRect.union($0)
+//            }
+//
+//            let bezierPath = UIBezierPath(roundedRect:startRect,
+//                                          byRoundingCorners: .allCorners,
+//                                            cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+//
+//            context.addPath(bezierPath.cgPath)
+//            context.drawPath(using: .eoFillStroke)
+
         }
     }
     
@@ -660,6 +770,22 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                             }
                         }
 
+                        drawValue(
+                            context: context,
+                            value: formatter.stringForValue(
+                                e.y,
+                                entry: e,
+                                dataSetIndex: dataSetIndex,
+                                viewPortHandler: viewPortHandler),
+                            xPos: x,
+                            yPos: rect.origin.y +
+                                (e.y >= 0 ? posOffset : negOffset),
+                            font: valueFont,
+                            align: .center,
+                            color: dataSet.valueTextColorAt(index),
+                            anchor: CGPoint(x: 0.5, y: 0.5),
+                            angleRadians: angleRadians)
+                        
                         bufferIndex += vals?.count ?? 1
                     }
                 }
