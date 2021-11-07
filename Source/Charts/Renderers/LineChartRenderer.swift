@@ -466,7 +466,7 @@ open class LineChartRenderer: LineRadarRenderer
                     shouldDrawValues(forDataSet: dataSet)
                     else { continue }
                 
-                let valueFont = dataSet.valueFont
+                var valueFont = dataSet.valueFont
                 
                 guard let formatter = dataSet.valueFormatter else { continue }
                 
@@ -504,6 +504,11 @@ open class LineChartRenderer: LineRadarRenderer
                     }
                     
                     if dataSet.isDrawValuesEnabled {
+
+                        if dataProvider.lineData?.highLightEntry == e {
+                            valueFont = dataSet.highLightValueFont
+                        }
+
                         ChartUtils.drawText(
                             context: context,
                             text: formatter.stringForValue(

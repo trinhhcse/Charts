@@ -211,6 +211,8 @@ public protocol IChartDataSet
     
     /// the font for the value-text labels
     var valueFont: NSUIFont { get set }
+
+    var highLightValueFont: NSUIFont { get set }
     
     /// The form to draw for this dataset in the legend.
     ///

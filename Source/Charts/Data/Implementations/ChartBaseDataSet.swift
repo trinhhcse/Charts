@@ -329,6 +329,8 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
     
     /// the font for the value-text labels
     open var valueFont: NSUIFont = NSUIFont.systemFont(ofSize: 7.0)
+
+    open var highLightValueFont: NSUIFont = NSUIFont.boldSystemFont(ofSize: 7.0)
     
     /// The form to draw for this dataset in the legend.
     open var form = Legend.Form.default
