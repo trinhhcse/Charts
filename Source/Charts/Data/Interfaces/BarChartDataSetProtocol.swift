@@ -41,4 +41,6 @@ public protocol BarChartDataSetProtocol: BarLineScatterCandleBubbleChartDataSetP
     var stackLabels: [String] { get set }
     
     var barCornerRadius: CGFloat { get set }
+
+    var valueSpacing: CGFloat { get set }
 }
