@@ -26,5 +26,8 @@ public protocol IAxisValueFormatter: class
     /// - Returns: The customized label that is drawn on the x-axis.
     func stringForValue(_ value: Double,
                         axis: AxisBase?) -> String
-    
+
+    @objc optional func colorForValue(_ value: Double,
+                        axis: AxisBase?) -> UIColor?
+
 }
