@@ -44,4 +44,6 @@ public protocol IBarChartDataSet: IBarLineScatterCandleBubbleChartDataSet
     
     var isDrawTopBarValue: Bool { get set }
 
+    var valueSpacing: CGFloat { get set }
+
 }

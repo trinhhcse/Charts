@@ -528,7 +528,6 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
 
             let dataSets = barData.dataSets
 
-            let valueOffsetPlus: CGFloat = 4.5
             var posOffset: CGFloat
             var negOffset: CGFloat
             let drawValueAboveBar = dataProvider.isDrawValueAboveBarEnabled
@@ -545,6 +544,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 // calculate the correct offset depending on the draw position of the value
                 let valueFont = dataSet.valueFont
                 let valueTextHeight = valueFont.lineHeight
+                let valueOffsetPlus = dataSet.valueSpacing
+
                 posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
                 negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
                 
