@@ -158,6 +158,10 @@ open class LineChartRenderer: LineRadarRenderer
                         x: CGFloat(cur.x) - curDx,
                         y: (CGFloat(cur.y) - curDy) * CGFloat(phaseY)),
                     transform: valueToPixelMatrix)
+
+                if !dataSet.circles.contains(where: {$0==Double(nextIndex)}) {
+                    break
+                }
             }
         }
         
