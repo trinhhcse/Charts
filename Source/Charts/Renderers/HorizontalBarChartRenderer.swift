@@ -358,6 +358,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 
                 let buffer = _buffers[dataSetIndex]
                 
+                let maxWidth:CGFloat = buffer.rects.max(by: {$0.size.width < $1.size.width})?.width ?? 1
                 // if only single values are drawn (sum)
                 if !dataSet.isStacked
                 {
@@ -407,7 +408,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                             drawValue(
                                 context: context,
                                 value: valueText,
-                                xPos: (rect.origin.x + rect.size.width)
+                                xPos: (rect.origin.x + maxWidth)
                                     + (val >= 0.0 ? posOffset : negOffset),
                                 yPos: y + yOffset,
                                 font: valueFont,
