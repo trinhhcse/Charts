@@ -368,8 +368,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     break
                 }
                 
-                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop
-                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight
+                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop + viewPortHandler.offsetTop
+                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight - viewPortHandler.contentTop - viewPortHandler.offsetTop
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
                 if dataSet.barCornerRadius > 0 {
