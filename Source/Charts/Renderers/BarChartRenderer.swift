@@ -544,16 +544,6 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 // calculate the correct offset depending on the draw position of the value
                 let valueFont = dataSet.valueFont
                 let valueTextHeight = valueFont.lineHeight
-                let valueOffsetPlus = dataSet.valueSpacing
-
-                posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
-                negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
-                
-                if isInverted
-                {
-                    posOffset = -posOffset - valueTextHeight
-                    negOffset = -negOffset - valueTextHeight
-                }
                 
                 let buffer = _buffers[dataSetIndex]
                 
@@ -571,6 +561,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     for j in 0 ..< Int(ceil(Double(dataSet.entryCount) * animator.phaseX))
                     {
                         guard let e = dataSet.entryForIndex(j) as? BarChartDataEntry else { continue }
+                        let valueOffsetPlus = barData.highLightEntry == e ? dataSet.valueSpacing : 4.5
+
+                        posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
+                        negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
+                        
+                        if isInverted
+                        {
+                            posOffset = -posOffset - valueTextHeight
+                            negOffset = -negOffset - valueTextHeight
+                        }
                         
                         let rect = buffer.rects[j]
                         
@@ -635,6 +635,17 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     for index in 0 ..< Int(ceil(Double(dataSet.entryCount) * animator.phaseX))
                     {
                         guard let e = dataSet.entryForIndex(index) as? BarChartDataEntry else { continue }
+                        
+                        let valueOffsetPlus = barData.highLightEntry == e ? dataSet.valueSpacing : 4.5
+
+                        posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
+                        negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
+                        
+                        if isInverted
+                        {
+                            posOffset = -posOffset - valueTextHeight
+                            negOffset = -negOffset - valueTextHeight
+                        }
                         
                         let vals = e.yValues
                         
