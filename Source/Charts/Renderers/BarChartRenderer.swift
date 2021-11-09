@@ -368,11 +368,20 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     break
                 }
                 
-                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop
-                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight
+                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop + viewPortHandler.offsetTop
+                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight - viewPortHandler.contentTop - viewPortHandler.offsetTop
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(_barShadowRectBuffer)
+                if dataSet.barCornerRadius > 0 {
+                    let bezierPath = UIBezierPath(roundedRect:_barShadowRectBuffer,
+                                                  byRoundingCorners: .allCorners,
+                                                    cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                } else {
+                    context.fill(_barShadowRectBuffer)
+                }
             }
         }
 
@@ -396,7 +405,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 }
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(barRect)
+                if dataSet.barCornerRadius > 0 {
+                    let bezierPath = UIBezierPath(roundedRect:barRect,
+                                                  byRoundingCorners: .allCorners,
+                                                    cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                } else {
+                    context.fill(barRect)
+                }
             }
         }
         
@@ -591,6 +609,12 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                         
                         if dataSet.isDrawValuesEnabled
                         {
+                            var yPos: CGFloat = 0.0
+                            if !dataProvider.isAlignValuesOnTop {
+                                yPos = val >= 0.0
+                                    ? (rect.origin.y + posOffset)
+                                    : (rect.origin.y + rect.size.height + negOffset)
+                            }
                             drawValue(
                                 context: context,
                                 value: formatter.stringForValue(
@@ -599,9 +623,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                                     dataSetIndex: dataSetIndex,
                                     viewPortHandler: viewPortHandler),
                                 xPos: x,
-                                yPos: val >= 0.0
-                                    ? (rect.origin.y + posOffset)
-                                    : (rect.origin.y + rect.size.height + negOffset),
+                                yPos: yPos,
                                 font: valueFont,
                                 align: .center,
                                 color: dataSet.valueTextColorAt(j))
