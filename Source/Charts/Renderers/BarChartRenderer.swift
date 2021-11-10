@@ -560,7 +560,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 let isInverted = dataProvider.isInverted(axis: dataSet.axisDependency)
                 
                 // calculate the correct offset depending on the draw position of the value
-                let valueFont = dataSet.valueFont
+                var valueFont = dataSet.valueFont
                 let valueTextHeight = valueFont.lineHeight
                 
                 let buffer = _buffers[dataSetIndex]
@@ -609,6 +609,10 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                         
                         if dataSet.isDrawValuesEnabled
                         {
+                            if dataProvider.barData?.highLightEntry == e {
+                                valueFont = dataSet.highLightValueFont
+                            }
+
                             var yPos: CGFloat = 0.0
                             if !dataProvider.isAlignValuesOnTop {
                                 yPos = val >= 0.0
