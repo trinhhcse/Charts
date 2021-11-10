@@ -432,6 +432,34 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         for j in stride(from: 0, to: buffer.rects.count, by: 1)
         {
             let barRect = buffer.rects[j]
+            let entry = dataSet.entryForIndex(j);
+            
+            if(!dataSet.lines.isEmpty) {
+                let line = dataSet.lines[j]
+                let lineColor = dataSet.lineColor
+                let lineWidth = dataSet.lineWidth
+                let lineDashPhase = dataSet.lineDashPhase
+                let lineAdditionWithBar = dataSet.lineAdditionWithBar*2
+                
+                
+                let x = barRect.origin.x
+                var y = barRect.origin.y
+                let width = barRect.size.width
+                let height = barRect.size.height
+                
+                
+                let value = entry?.y ?? 0
+                let yOffset = line/value*height
+                y = y + height - yOffset
+                let lineDashPath = UIBezierPath()
+                lineDashPath.move(to:  CGPoint(x: x - lineAdditionWithBar , y: y ))
+                lineDashPath.addLine(to: CGPoint(x: x + width + lineAdditionWithBar , y: y))
+                context.addPath(lineDashPath.cgPath)
+                context.setLineWidth(lineWidth)
+                context.setStrokeColor(lineColor.cgColor)
+                context.setLineDash(phase: 0, lengths: lineDashPhase)
+                context.strokePath()
+            }
 
             if (!viewPortHandler.isInBoundsLeft(barRect.origin.x + barRect.size.width))
             {

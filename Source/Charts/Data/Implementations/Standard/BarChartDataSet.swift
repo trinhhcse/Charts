@@ -154,6 +154,16 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, IBarChartDat
     open var highlightAlpha = CGFloat(120.0 / 255.0)
 
     open var valueSpacing : CGFloat = 4.5
+
+    open var lines : [Double] = []
+    
+    open var lineAdditionWithBar : CGFloat = 5
+    
+    open var lineColor: UIColor = UIColor.gray
+    
+    open var lineWidth: CGFloat = 1
+    
+    open var lineDashPhase: [CGFloat] = [2,3]
     
     // MARK: - NSCopying
     
