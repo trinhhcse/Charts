@@ -449,7 +449,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 
                 let value = entry?.y ?? 0
-                let yOffset = line/value*height
+                let yOffset = CGFloat(line/value)*height
                 y = y + height - yOffset
                 let lineDashPath = UIBezierPath()
                 lineDashPath.move(to:  CGPoint(x: x - lineAdditionWithBar , y: y ))
