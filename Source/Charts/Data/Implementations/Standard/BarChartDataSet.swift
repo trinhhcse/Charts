@@ -152,6 +152,18 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, IBarChartDat
 
     /// the alpha value (transparency) that is used for drawing the highlight indicator bar. min = 0.0 (fully transparent), max = 1.0 (fully opaque)
     open var highlightAlpha = CGFloat(120.0 / 255.0)
+
+    open var valueSpacing : CGFloat = 4.5
+
+    open var lines : [Double] = []
+    
+    open var lineAdditionWithBar : CGFloat = 5
+    
+    open var lineColor: UIColor = UIColor.gray
+    
+    open var lineWidth: CGFloat = 1
+    
+    open var lineDashPhase: [CGFloat] = [2,3]
     
     // MARK: - NSCopying
     

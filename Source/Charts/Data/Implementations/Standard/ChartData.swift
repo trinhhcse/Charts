@@ -607,4 +607,6 @@ open class ChartData: NSObject
     /// If the data entry value is a count, set this to true to allow plurals and other grammatical changes
     /// **default**: false
     @objc open var accessibilityEntryLabelSuffixIsCount: Bool = false
+
+    @objc open var highLightEntry: ChartDataEntry?
 }

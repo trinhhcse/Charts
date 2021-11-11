@@ -44,4 +44,16 @@ public protocol IBarChartDataSet: IBarLineScatterCandleBubbleChartDataSet
     
     var isDrawTopBarValue: Bool { get set }
 
+    var valueSpacing: CGFloat { get set }
+
+    var lines: [Double] { get set }
+    
+    var lineAdditionWithBar: CGFloat { get set }
+    
+    var lineColor: UIColor { get set }
+    
+    var lineWidth: CGFloat { get set }
+    
+    var lineDashPhase: [CGFloat] { get set }
+
 }

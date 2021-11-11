@@ -368,11 +368,20 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     break
                 }
                 
-                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop
-                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight
+                _barShadowRectBuffer.origin.y = viewPortHandler.contentTop + viewPortHandler.offsetTop
+                _barShadowRectBuffer.size.height = viewPortHandler.contentHeight - viewPortHandler.contentTop - viewPortHandler.offsetTop
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(_barShadowRectBuffer)
+                if dataSet.barCornerRadius > 0 {
+                    let bezierPath = UIBezierPath(roundedRect:_barShadowRectBuffer,
+                                                  byRoundingCorners: .allCorners,
+                                                    cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                } else {
+                    context.fill(_barShadowRectBuffer)
+                }
             }
         }
 
@@ -396,7 +405,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 }
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(barRect)
+                if dataSet.barCornerRadius > 0 {
+                    let bezierPath = UIBezierPath(roundedRect:barRect,
+                                                  byRoundingCorners: .allCorners,
+                                                    cornerRadii: CGSize(width: dataSet.barCornerRadius, height:  dataSet.barCornerRadius))
+
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                } else {
+                    context.fill(barRect)
+                }
             }
         }
         
@@ -414,6 +432,34 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         for j in stride(from: 0, to: buffer.rects.count, by: 1)
         {
             let barRect = buffer.rects[j]
+            let entry = dataSet.entryForIndex(j);
+            
+            if(!dataSet.lines.isEmpty) {
+                let line = dataSet.lines[j]
+                let lineColor = dataSet.lineColor
+                let lineWidth = dataSet.lineWidth
+                let lineDashPhase = dataSet.lineDashPhase
+                let lineAdditionWithBar = dataSet.lineAdditionWithBar*2
+                
+                
+                let x = barRect.origin.x
+                var y = barRect.origin.y
+                let width = barRect.size.width
+                let height = barRect.size.height
+                
+                
+                let value = entry?.y ?? 0
+                let yOffset = line/value*height
+                y = y + height - yOffset
+                let lineDashPath = UIBezierPath()
+                lineDashPath.move(to:  CGPoint(x: x - lineAdditionWithBar , y: y ))
+                lineDashPath.addLine(to: CGPoint(x: x + width + lineAdditionWithBar , y: y))
+                context.addPath(lineDashPath.cgPath)
+                context.setLineWidth(lineWidth)
+                context.setStrokeColor(lineColor.cgColor)
+                context.setLineDash(phase: 0, lengths: lineDashPhase)
+                context.strokePath()
+            }
 
             if (!viewPortHandler.isInBoundsLeft(barRect.origin.x + barRect.size.width))
             {
@@ -528,7 +574,6 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
 
             let dataSets = barData.dataSets
 
-            let valueOffsetPlus: CGFloat = 4.5
             var posOffset: CGFloat
             var negOffset: CGFloat
             let drawValueAboveBar = dataProvider.isDrawValueAboveBarEnabled
@@ -543,16 +588,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 let isInverted = dataProvider.isInverted(axis: dataSet.axisDependency)
                 
                 // calculate the correct offset depending on the draw position of the value
-                let valueFont = dataSet.valueFont
+                var valueFont = dataSet.valueFont
                 let valueTextHeight = valueFont.lineHeight
-                posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
-                negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
-                
-                if isInverted
-                {
-                    posOffset = -posOffset - valueTextHeight
-                    negOffset = -negOffset - valueTextHeight
-                }
                 
                 let buffer = _buffers[dataSetIndex]
                 
@@ -570,6 +607,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     for j in 0 ..< Int(ceil(Double(dataSet.entryCount) * animator.phaseX))
                     {
                         guard let e = dataSet.entryForIndex(j) as? BarChartDataEntry else { continue }
+                        let valueOffsetPlus = barData.highLightEntry == e ? dataSet.valueSpacing : 4.5
+
+                        posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
+                        negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
+                        
+                        if isInverted
+                        {
+                            posOffset = -posOffset - valueTextHeight
+                            negOffset = -negOffset - valueTextHeight
+                        }
                         
                         let rect = buffer.rects[j]
                         
@@ -590,6 +637,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                         
                         if dataSet.isDrawValuesEnabled
                         {
+                            if dataProvider.barData?.highLightEntry == e {
+                                valueFont = dataSet.highLightValueFont
+                            }
+
+                            var yPos: CGFloat = 0.0
+                            if !dataProvider.isAlignValuesOnTop {
+                                yPos = val >= 0.0
+                                    ? (rect.origin.y + posOffset)
+                                    : (rect.origin.y + rect.size.height + negOffset)
+                            }
                             drawValue(
                                 context: context,
                                 value: formatter.stringForValue(
@@ -598,9 +655,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                                     dataSetIndex: dataSetIndex,
                                     viewPortHandler: viewPortHandler),
                                 xPos: x,
-                                yPos: val >= 0.0
-                                    ? (rect.origin.y + posOffset)
-                                    : (rect.origin.y + rect.size.height + negOffset),
+                                yPos: yPos,
                                 font: valueFont,
                                 align: .center,
                                 color: dataSet.valueTextColorAt(j))
@@ -634,6 +689,17 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                     for index in 0 ..< Int(ceil(Double(dataSet.entryCount) * animator.phaseX))
                     {
                         guard let e = dataSet.entryForIndex(index) as? BarChartDataEntry else { continue }
+                        
+                        let valueOffsetPlus = barData.highLightEntry == e ? dataSet.valueSpacing : 4.5
+
+                        posOffset = (drawValueAboveBar ? -(valueTextHeight + valueOffsetPlus) : valueOffsetPlus)
+                        negOffset = (drawValueAboveBar ? valueOffsetPlus : -(valueTextHeight + valueOffsetPlus))
+                        
+                        if isInverted
+                        {
+                            posOffset = -posOffset - valueTextHeight
+                            negOffset = -negOffset - valueTextHeight
+                        }
                         
                         let vals = e.yValues
                         

@@ -146,12 +146,14 @@ open class XAxisRendererHorizontalBarChart: XAxisRenderer
             {
                 if let label = xAxis.valueFormatter?.stringForValue(xAxis.entries[i], axis: xAxis)
                 {
+                    let attributes = [NSAttributedString.Key.font: labelFont, NSAttributedString.Key.foregroundColor: labelTextColor]
+                    let size = label.size(withAttributes: attributes)
                     drawLabel(
                         context: context,
                         formattedLabel: label,
-                        x: pos,
+                        x: size.width,
                         y: position.y,
-                        attributes: [NSAttributedString.Key.font: labelFont, NSAttributedString.Key.foregroundColor: labelTextColor],
+                        attributes: attributes,
                         anchor: anchor,
                         angleRadians: labelRotationAngleRadians)
                 }

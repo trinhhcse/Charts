@@ -553,6 +553,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
                 delegate.chartValueNothingSelected?(self)
             }
         }
+
+        data?.highLightEntry = entry
         
         // redraw the chart
         setNeedsDisplay()
