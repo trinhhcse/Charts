@@ -118,7 +118,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 }
                 
                 barRect.origin.x = left
-                barRect.size.width = right - left
+                barRect.size.width = right - left - 30
                 barRect.origin.y = top
                 barRect.size.height = bottom - top
                 

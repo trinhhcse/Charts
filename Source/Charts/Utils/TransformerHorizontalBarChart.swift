@@ -20,7 +20,7 @@ open class TransformerHorizontalBarChart: Transformer
     {
         if !inverted
         {
-            _matrixOffset = CGAffineTransform(translationX: _viewPortHandler.offsetLeft, y: _viewPortHandler.chartHeight - _viewPortHandler.offsetBottom)
+            _matrixOffset = CGAffineTransform(translationX: _viewPortHandler.offsetLeft + 30, y: _viewPortHandler.chartHeight - _viewPortHandler.offsetBottom)
         }
         else
         {
