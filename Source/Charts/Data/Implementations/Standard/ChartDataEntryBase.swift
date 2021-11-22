@@ -18,6 +18,8 @@ open class ChartDataEntryBase: NSObject
     
     /// optional spot for additional data this Entry represents
     @objc open var data: Any?
+
+    @objc open var yPos: CGFloat = 0
     
     /// optional icon image
     @objc open var icon: NSUIImage?

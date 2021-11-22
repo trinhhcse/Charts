@@ -637,16 +637,18 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                         
                         if dataSet.isDrawValuesEnabled
                         {
-                            if dataProvider.barData?.highLightEntry == e {
-                                valueFont = dataSet.highLightValueFont
-                            }
-
                             var yPos: CGFloat = 0.0
                             if !dataProvider.isAlignValuesOnTop {
                                 yPos = val >= 0.0
                                     ? (rect.origin.y + posOffset)
                                     : (rect.origin.y + rect.size.height + negOffset)
                             }
+
+                            if dataProvider.barData?.highLightEntry == e {
+                                valueFont = dataSet.highLightValueFont
+                                dataProvider.barData?.highLightEntry?.yPos = yPos
+                            }
+
                             drawValue(
                                 context: context,
                                 value: formatter.stringForValue(
