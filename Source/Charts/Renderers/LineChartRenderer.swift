@@ -509,12 +509,21 @@ open class LineChartRenderer: LineRadarRenderer
                     
                     if dataSet.isDrawValuesEnabled {
                         let isHighLight = dataProvider.lineData?.highLightEntry == e
-                        if isHighLight {
-                            valueFont = dataSet.highLightValueFont
-                        }
-                        
                         let bottomSpacing = isHighLight ? dataSet.valueBottomSpacing : 0
 
+                        let yPos: CGFloat
+                        if e.y > 0 {
+                            yPos = pt.y - CGFloat(valOffset) - valueFont.lineHeight - 2*bottomSpacing
+                        } else {
+                            yPos = pt.y + CGFloat(valOffset) + valueFont.lineHeight
+                        }
+                        
+                        
+                        if isHighLight {
+                            valueFont = dataSet.highLightValueFont
+                            dataProvider.lineData?.highLightEntry?.yPos = yPos
+                        }
+                        
                         ChartUtils.drawText(
                             context: context,
                             text: formatter.stringForValue(
@@ -524,7 +533,7 @@ open class LineChartRenderer: LineRadarRenderer
                                 viewPortHandler: viewPortHandler),
                             point: CGPoint(
                                 x: pt.x,
-                                y: pt.y - CGFloat(valOffset) - valueFont.lineHeight - bottomSpacing),
+                                y: yPos),
                             align: .center,
                             attributes: [NSAttributedString.Key.font: valueFont, NSAttributedString.Key.foregroundColor: dataSet.valueTextColorAt(j)])
                     }
